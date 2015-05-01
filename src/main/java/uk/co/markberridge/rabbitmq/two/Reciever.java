@@ -23,15 +23,18 @@ public class Reciever {
             System.out.printf(" [*] Waiting for messages. To exit press Ctrl+C%n");
 
             QueueingConsumer consumer = new QueueingConsumer(channel);
-            channel.basicConsume(QUEUE_NAME, true, consumer);
+            boolean autoAck = false;
+            channel.basicConsume(QUEUE_NAME, autoAck, consumer);
 
             while (true) {
                 QueueingConsumer.Delivery delivery = consumer.nextDelivery();
                 String message = new String(delivery.getBody());
 
-                System.out.println(" [x] Received '" + message + "'");
+                System.out.printf(" [x] Received [%s]%n", message);
                 doWork(message);
-                System.out.println(" [x] Done");
+
+                channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                System.out.printf(" [x] Processed [%s]%n", message);
             }
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
