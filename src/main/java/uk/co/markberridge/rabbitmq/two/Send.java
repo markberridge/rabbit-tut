@@ -3,10 +3,9 @@ package uk.co.markberridge.rabbitmq.two;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.MessageProperties;
 
 public class Send {
-
-    private final static String QUEUE_NAME = "hello";
 
     public static void main(String[] arg) throws java.io.IOException, InterruptedException {
         //        send("First message.");
@@ -25,15 +24,16 @@ public class Send {
     }
 
     public static void send(String message) throws java.io.IOException, InterruptedException {
-
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
+        int prefetchCount = 1;
+        channel.basicQos(prefetchCount);
+        boolean durable = true;
+        channel.queueDeclare(Queue.TASK_QUEUE, durable, false, false, null);
 
-        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-
-        channel.basicPublish("", "hello", null, message.getBytes());
+        channel.basicPublish("", Queue.TASK_QUEUE, MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes());
         System.out.println(" [x] Sent '" + message + "'");
 
         channel.close();

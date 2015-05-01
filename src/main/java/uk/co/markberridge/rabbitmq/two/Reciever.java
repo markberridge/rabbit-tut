@@ -9,8 +9,6 @@ import com.rabbitmq.client.QueueingConsumer;
 
 public class Reciever {
 
-    private final static String QUEUE_NAME = "hello";
-
     public static void main(String[] argv) throws Exception {
 
         try {
@@ -18,13 +16,16 @@ public class Reciever {
             factory.setHost("localhost");
             Connection connection = factory.newConnection();
             Channel channel = connection.createChannel();
+            int prefetchCount = 1;
+            channel.basicQos(prefetchCount);
+            boolean durable = true;
+            channel.queueDeclare(Queue.TASK_QUEUE, durable, false, false, null);
 
-            channel.queueDeclare(QUEUE_NAME, false, false, false, null);
             System.out.printf(" [*] Waiting for messages. To exit press Ctrl+C%n");
 
             QueueingConsumer consumer = new QueueingConsumer(channel);
             boolean autoAck = false;
-            channel.basicConsume(QUEUE_NAME, autoAck, consumer);
+            channel.basicConsume(Queue.TASK_QUEUE, autoAck, consumer);
 
             while (true) {
                 QueueingConsumer.Delivery delivery = consumer.nextDelivery();
