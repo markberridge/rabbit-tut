@@ -3,4 +3,4 @@
 ## Management Console
 
 - Enable [management plugin](https://www.rabbitmq.com/management.html)
-- Browse to (http://localhost:15672/)
+- Browse to [Management Console](http://localhost:15672/)
